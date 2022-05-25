@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: node
+    container_name: server
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 40s docker-entrypoint.sh node index.js
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    container_name: db
+    restart: always
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=pessoas
+      - MYSQL_ROOT_PASSWORD=root
+
+  nginx:
+    build:
+      context: nginx
+    container_name: nginx    
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
